@@ -5,7 +5,10 @@
 const recipes = [
   'https://introweb.tech/assets/json/ghostCookies.json',
   'https://introweb.tech/assets/json/birthdayCake.json',
-  'https://introweb.tech/assets/json/chocolateChip.json'
+  'https://introweb.tech/assets/json/chocolateChip.json',
+  'assets/recipes/mapoTofu.json',
+  'assets/recipes/YuXiangRouSi.json',
+  'assets/recipes/ShaoMai.json'
 ];
 
 // Once all of the recipes that were specified above have been fetched, their
@@ -26,7 +29,7 @@ async function init() {
   };
   // Add the first three recipe cards to the page
   createRecipeCards();
-  // Make the "Show more" button functional
+  // Make the 'Show more' button functional
   bindShowMore();
 }
 
@@ -43,6 +46,18 @@ async function fetchRecipes() {
     // in the recipes folder and fetch them from there. You'll need to add their paths to the recipes array.
 
     // Part 1 Expose - TODO
+
+    recipes.forEach(r => {
+      fetch(r)
+        .then(response => response.json())
+        .then(data => {
+          recipeData[r]=data;
+          if (Object.keys(recipeData).length == recipes.length){
+            resolve(true)
+          };
+        })
+        .catch((error) =>{reject(false)});
+    });
   });
 }
 
@@ -51,18 +66,42 @@ function createRecipeCards() {
   // From within this function you can access the recipe data from the JSON 
   // files with the recipeData Object above. Make sure you only display the 
   // three recipes we give you, you'll use the bindShowMore() function to
-  // show any others you've added when the user clicks on the "Show more" button.
+  // show any others you've added when the user clicks on the 'Show more' button.
 
   // Part 1 Expose - TODO
+  for(var i = 0; i < 3; i++) {
+    const reciepe = document.createElement('recipe-card');
+    reciepe.data = recipeData[recipes[i]];
+    document.querySelector('main').appendChild(reciepe);
+  }
 }
 
 function bindShowMore() {
   // This function is also called for you up above.
-  // Use this to add the event listener to the "Show more" button, from within 
+  // Use this to add the event listener to the 'Show more' button, from within 
   // that listener you can then create recipe cards for the rest of the .json files
   // that were fetched. You should fetch every recipe in the beginning, whether you
   // display it or not, so you don't need to fetch them again. Simply access them
   // in the recipeData object where you stored them/
 
   // Part 2 Explore - TODO
+
+  let button = document.querySelector('button');
+  button.addEventListener('click', function() {
+    if(button.innerHTML === 'Show more') {
+      for(var i = 3; i < Object.keys(recipeData).length; i++) {
+        const recipe = document.createElement('recipe-card');
+        recipe.data = recipeData[recipes[i]];
+        document.querySelector('main').appendChild(recipe);
+      }
+      button.innerHTML = 'Show less';
+    } 
+    else if(button.innerHTML === 'Show less') {
+      let items = document.querySelectorAll('recipe-card');
+      for(var i = 3; i < Object.keys(recipeData).length; i++) {
+        items[i].remove();
+      }
+      button.innerHTML = 'Show more';
+    }
+  });
 }
